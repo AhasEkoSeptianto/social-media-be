@@ -8,7 +8,6 @@ const { cookieName } = require("../config/env");
  * Membaca session token dari cookie, verifikasi, lalu attach req.user.
  */
 async function requireAuth(req, res, next) {
-  console.log(req);
   try {
     const token = req.cookies?.[cookieName];
 
@@ -18,7 +17,7 @@ async function requireAuth(req, res, next) {
 
     const decoded = verifySessionToken(token);
     const user = await User.findById(decoded.sub).lean();
-    console.log(user);
+
     if (!user) {
       throw new AppError("User tidak ditemukan", 401);
     }
