@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
     googleId: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true, // boleh null untuk user yang daftar via email/password
       index: true,
     },
     email: {
@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+    },
+    password: {
+      type: String,
+      select: false, // tidak ikut ke-return default saat query, harus eksplisit .select('+password')
     },
     name: {
       type: String,
@@ -22,7 +26,7 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);

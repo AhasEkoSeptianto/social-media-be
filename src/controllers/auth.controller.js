@@ -1,14 +1,16 @@
-const { verifyGoogleToken } = require('../services/google.service');
+const { verifyGoogleToken } = require("../services/google.service");
 const {
   findOrCreateUser,
+  registerWithEmail,
+  loginWithEmailPassword,
   generateSessionToken,
-} = require('../services/auth.service');
-const { cookieName, env } = require('../config/env');
+} = require("../services/auth.service");
+const { cookieName, env } = require("../config/env");
 
 const cookieOptions = {
   httpOnly: true,
-  secure: env === 'production',
-  sameSite: 'lax',
+  secure: env === "production",
+  sameSite: "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
 };
 
@@ -41,6 +43,73 @@ async function loginWithGoogle(req, res, next) {
 }
 
 /**
+ * POST /api/auth/register
+ * Body: { email, password, name }
+ */
+async function register(req, res, next) {
+  try {
+    const { email, password, name } = req.body;
+
+    if (!email || !password || !name) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, password, dan nama wajib diisi",
+      });
+    }
+
+    const user = await registerWithEmail({ email, password, name });
+    const sessionToken = generateSessionToken(user);
+
+    res.cookie(cookieName, sessionToken, cookieOptions);
+
+    res.status(201).json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * POST /api/auth/login
+ * Body: { email, password }
+ */
+async function loginWithEmail(req, res, next) {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email dan password wajib diisi",
+      });
+    }
+
+    const user = await loginWithEmailPassword({ email, password });
+    const sessionToken = generateSessionToken(user);
+
+    res.cookie(cookieName, sessionToken, cookieOptions);
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
  * GET /api/auth/me
  * Mengembalikan data user yang sedang login (butuh middleware auth).
  */
@@ -53,7 +122,13 @@ async function getCurrentUser(req, res) {
  */
 async function logout(req, res) {
   res.clearCookie(cookieName);
-  res.status(200).json({ success: true, message: 'Logged out' });
+  res.status(200).json({ success: true, message: "Logged out" });
 }
 
-module.exports = { loginWithGoogle, getCurrentUser, logout };
+module.exports = {
+  loginWithGoogle,
+  register,
+  loginWithEmail,
+  getCurrentUser,
+  logout,
+};
