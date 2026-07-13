@@ -1,12 +1,10 @@
-const express = require('express');
-const authRoutes = require('./auth.routes');
+const express = require("express");
+const authRoutes = require("./auth.routes");
+const postRoutes = require("./post,route");
 
 const router = express.Router();
 
-router.use('/auth', authRoutes);
-
-// Tambahkan routes lain di sini, contoh:
-// router.use('/posts', postRoutes);
-// router.use('/users', userRoutes);
+router.use("/auth", authRoutes);
+router.use("/posts", postRoutes);
 
 module.exports = router;
