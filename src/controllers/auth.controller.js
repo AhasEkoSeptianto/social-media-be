@@ -68,6 +68,7 @@ async function register(req, res, next) {
         id: user._id,
         email: user.email,
         name: user.name,
+        username: user.name,
       },
     });
   } catch (err) {
@@ -101,6 +102,7 @@ async function loginWithEmail(req, res, next) {
         id: user._id,
         email: user.email,
         name: user.name,
+        username: user.username,
         avatarUrl: user.avatarUrl,
       },
     });
@@ -114,6 +116,7 @@ async function loginWithEmail(req, res, next) {
  * Mengembalikan data user yang sedang login (butuh middleware auth).
  */
 async function getCurrentUser(req, res) {
+  console.log(res);
   res.status(200).json({ success: true, user: req.user });
 }
 

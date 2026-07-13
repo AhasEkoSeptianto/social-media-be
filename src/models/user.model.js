@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    username: {
+      type: String,
+    },
     avatarUrl: {
       type: String,
     },

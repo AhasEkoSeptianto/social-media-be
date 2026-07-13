@@ -1,25 +1,26 @@
-const { verifySessionToken } = require('../services/auth.service');
-const User = require('../models/user.model');
-const AppError = require('../utils/AppError');
-const { cookieName } = require('../config/env');
+const { verifySessionToken } = require("../services/auth.service");
+const User = require("../models/user.model");
+const AppError = require("../utils/AppError");
+const { cookieName } = require("../config/env");
 
 /**
  * Middleware untuk melindungi route yang butuh login.
  * Membaca session token dari cookie, verifikasi, lalu attach req.user.
  */
 async function requireAuth(req, res, next) {
+  console.log(req);
   try {
     const token = req.cookies?.[cookieName];
 
     if (!token) {
-      throw new AppError('Belum login', 401);
+      throw new AppError("Belum login", 401);
     }
 
     const decoded = verifySessionToken(token);
     const user = await User.findById(decoded.sub).lean();
-
+    console.log(user);
     if (!user) {
-      throw new AppError('User tidak ditemukan', 401);
+      throw new AppError("User tidak ditemukan", 401);
     }
 
     req.user = {
@@ -31,7 +32,7 @@ async function requireAuth(req, res, next) {
 
     next();
   } catch (err) {
-    next(new AppError('Sesi tidak valid atau kedaluwarsa', 401));
+    next(new AppError("Sesi tidak valid atau kedaluwarsa", 401));
   }
 }
 
