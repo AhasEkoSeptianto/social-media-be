@@ -9,8 +9,10 @@ const { cookieName, env } = require("../config/env");
 
 const cookieOptions = {
   httpOnly: true,
-  secure: env === "production",
-  sameSite: "lax",
+  secure: env === "production", // sameSite: 'none' WAJIB secure: true (HTTPS)
+  // 'none' karena frontend (Netlify) & backend (Vercel) beda domain -- cross-site.
+  // 'lax' tidak akan terkirim di skenario cross-site seperti ini.
+  sameSite: env === "production" ? "none" : "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
 };
 
@@ -68,7 +70,6 @@ async function register(req, res, next) {
         id: user._id,
         email: user.email,
         name: user.name,
-        username: user.name,
       },
     });
   } catch (err) {
@@ -102,7 +103,6 @@ async function loginWithEmail(req, res, next) {
         id: user._id,
         email: user.email,
         name: user.name,
-        username: user.username,
         avatarUrl: user.avatarUrl,
       },
     });
@@ -123,7 +123,14 @@ async function getCurrentUser(req, res) {
  * POST /api/auth/logout
  */
 async function logout(req, res) {
-  res.clearCookie(cookieName);
+  // clearCookie HARUS dipanggil dengan options yang sama (secure, sameSite, path)
+  // seperti saat res.cookie() dipanggil -- kalau tidak, browser bisa anggap ini
+  // cookie yang berbeda dan tidak benar-benar menghapusnya.
+  res.clearCookie(cookieName, {
+    httpOnly: cookieOptions.httpOnly,
+    secure: cookieOptions.secure,
+    sameSite: cookieOptions.sameSite,
+  });
   res.status(200).json({ success: true, message: "Logged out" });
 }
 

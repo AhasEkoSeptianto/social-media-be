@@ -12,12 +12,15 @@ const postSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    images: [
-      {
-        url: { type: String, required: true },
-        publicId: { type: String },
-      },
-    ],
+    images: {
+      type: String,
+    },
+    // images: [
+    //   {
+    //     url: { type: String, required: true },
+    //     publicId: { type: String },
+    //   },
+    // ],
     likesCount: {
       type: Number,
       default: 0,
