@@ -1,4 +1,5 @@
 const Post = require("../models/post.model");
+const Like = require("../models/like.model");
 
 async function createPostServices({ user_id, content, image_url }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
@@ -24,7 +25,7 @@ async function deletePostServices({ user_id, post_id }) {
   return post;
 }
 
-async function getPostServices({ page, limit }) {
+async function getPostServices({ page, limit, user_id }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
   // formatnya array of { url, publicId }
   // const posts = await Post.find().populate("author");
@@ -39,13 +40,26 @@ async function getPostServices({ page, limit }) {
       .populate("author")
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit),
+      .limit(limit)
+      .lean(),
 
     Post.countDocuments(),
   ]);
 
+  const likes = await Like.find({
+    user: user_id,
+    post: {
+      $in: posts.map((post) => post._id),
+    },
+  });
+  const likedPostIds = new Set(likes.map((like) => like.post.toString()));
+  const result = posts.map((post) => ({
+    ...post,
+    isLiked: likedPostIds.has(post._id.toString()),
+  }));
+
   return {
-    posts,
+    posts: result,
     pagination: {
       page,
       limit,
@@ -55,8 +69,42 @@ async function getPostServices({ page, limit }) {
   };
 }
 
+async function likePostService(userId, postId) {
+  const alreadyLiked = await Like.findOne({
+    user: userId,
+    post: postId,
+  });
+
+  if (alreadyLiked) {
+    const deleted = await Like.findOneAndDelete({
+      user: userId,
+      post: postId,
+    });
+
+    if (deleted) {
+      await Post.findByIdAndUpdate(postId, {
+        $inc: {
+          likesCount: -1,
+        },
+      });
+    }
+  } else {
+    await Like.create({
+      user: userId,
+      post: postId,
+    });
+
+    await Post.findByIdAndUpdate(postId, {
+      $inc: {
+        likesCount: 1,
+      },
+    });
+  }
+}
+
 module.exports = {
   createPostServices,
   getPostServices,
   deletePostServices,
+  likePostService,
 };

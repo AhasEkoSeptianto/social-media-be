@@ -2,6 +2,7 @@ const {
   createPostServices,
   getPostServices,
   deletePostServices,
+  likePostService,
 } = require("../services/post.service");
 
 async function createPost(req, res, next) {
@@ -29,7 +30,7 @@ async function getPost(req, res, next) {
     const limit = req.query.limit || 10;
     const user_id = req.user.id;
 
-    const posts = await getPostServices({ page, limit });
+    const posts = await getPostServices({ page, limit, user_id });
 
     res.status(200).json({
       success: true,
@@ -39,12 +40,6 @@ async function getPost(req, res, next) {
     next(error);
   }
 }
-
-module.exports = {
-  createPost,
-  getPost,
-};
-
 async function deletePost(req, res, next) {
   try {
     const { id } = req.params;
@@ -62,8 +57,25 @@ async function deletePost(req, res, next) {
   }
 }
 
+async function likePost(req, res, next) {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+    const posts = await likePostService(user_id, id);
+
+    res.status(200).json({
+      success: true,
+      data: posts,
+    });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+}
+
 module.exports = {
   createPost,
   getPost,
   deletePost,
+  likePost,
 };
