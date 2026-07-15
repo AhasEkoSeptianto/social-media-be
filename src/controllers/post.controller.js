@@ -1,6 +1,7 @@
 const {
   createPostServices,
   getPostServices,
+  deletePostServices,
 } = require("../services/post.service");
 
 async function createPost(req, res, next) {
@@ -42,4 +43,27 @@ async function getPost(req, res, next) {
 module.exports = {
   createPost,
   getPost,
+};
+
+async function deletePost(req, res, next) {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+    const posts = await deletePostServices({ user_id, post_id: id });
+    console.log(posts);
+
+    res.status(200).json({
+      success: true,
+      data: posts,
+    });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+}
+
+module.exports = {
+  createPost,
+  getPost,
+  deletePost,
 };

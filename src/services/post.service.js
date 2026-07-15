@@ -12,6 +12,18 @@ async function createPostServices({ user_id, content, image_url }) {
   return post;
 }
 
+async function deletePostServices({ user_id, post_id }) {
+  // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
+  // formatnya array of { url, publicId }
+  console.log(user_id, post_id);
+  const post = await Post.deleteOne({
+    _id: post_id,
+    author: user_id,
+  });
+
+  return post;
+}
+
 async function getPostServices({ page, limit }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
   // formatnya array of { url, publicId }
@@ -46,4 +58,5 @@ async function getPostServices({ page, limit }) {
 module.exports = {
   createPostServices,
   getPostServices,
+  deletePostServices,
 };
