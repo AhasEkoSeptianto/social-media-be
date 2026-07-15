@@ -110,7 +110,8 @@ async function createCommentServices(user_id, post_id, content) {
     post: post_id,
     content: content,
   });
-  await Post.findByIdAndUpdate(postId, {
+
+  await Post.findByIdAndUpdate(post_id, {
     $inc: {
       commentsCount: 1,
     },
