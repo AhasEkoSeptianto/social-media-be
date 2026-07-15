@@ -29,6 +29,11 @@ const postSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    sharesCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );
@@ -36,11 +41,11 @@ const postSchema = new mongoose.Schema(
 postSchema.index({ createdAt: -1 }); // buat sorting feed terbaru
 
 // (opsional) Batasi maksimal jumlah gambar per post
-postSchema.pre("validate", function (next) {
-  if (this.images && this.images.length > 10) {
-    return next(new Error("Maksimal 10 gambar per post"));
-  }
-  next();
-});
+// postSchema.pre("validate", function (next) {
+//   if (this.images && this.images.length > 10) {
+//     return next(new Error("Maksimal 10 gambar per post"));
+//   }
+//   next();
+// });
 
 module.exports = mongoose.model("Post", postSchema);

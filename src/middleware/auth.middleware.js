@@ -28,7 +28,6 @@ async function requireAuth(req, res, next) {
       name: user.name,
       avatarUrl: user.avatarUrl,
     };
-
     next();
   } catch (err) {
     next(new AppError("Sesi tidak valid atau kedaluwarsa", 401));

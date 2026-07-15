@@ -1,6 +1,6 @@
 const express = require("express");
 const authRoutes = require("./auth.routes");
-const postRoutes = require("./post,route");
+const postRoutes = require("./post.route");
 
 const router = express.Router();
 
