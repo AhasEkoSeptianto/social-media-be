@@ -1,5 +1,6 @@
 const Post = require("../models/post.model");
 const Like = require("../models/like.model");
+const commentModel = require("../models/comment.model");
 
 async function createPostServices({ user_id, content, image_url }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
@@ -102,9 +103,41 @@ async function likePostService(userId, postId) {
   }
 }
 
+// comment
+async function createCommentServices(user_id, post_id, content) {
+  const commentPost = await commentModel.create({
+    author: user_id,
+    post: post_id,
+    content: content,
+  });
+  await Post.findByIdAndUpdate(postId, {
+    $inc: {
+      commentsCount: 1,
+    },
+  });
+  return commentPost;
+}
+
+async function getCommentServices(post_id, page, limit) {
+  const skip = (page - 1) * limit;
+  const commentPost = await commentModel
+    .find({
+      post: post_id,
+    })
+    .populate("author")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  return commentPost;
+}
+
 module.exports = {
   createPostServices,
   getPostServices,
   deletePostServices,
   likePostService,
+  createCommentServices,
+  getCommentServices,
 };
