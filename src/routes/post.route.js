@@ -5,8 +5,8 @@ const { createPost, getPost } = require("../controllers/post.controller");
 
 const router = express.Router();
 
-router.post("/create", createPost);
+router.post("/create", requireAuth, createPost);
 
-router.get("/", getPost);
+router.get("/", requireAuth, getPost);
 
 module.exports = router;
