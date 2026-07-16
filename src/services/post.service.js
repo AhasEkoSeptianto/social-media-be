@@ -1,6 +1,7 @@
 const Post = require("../models/post.model");
 const Like = require("../models/like.model");
 const commentModel = require("../models/comment.model");
+const userModel = require("../models/user.model");
 
 async function createPostServices({ user_id, content, image_url }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
@@ -11,13 +12,18 @@ async function createPostServices({ user_id, content, image_url }) {
     images: image_url,
   });
 
+  await userModel.findByIdAndUpdate(user_id, {
+    $inc: {
+      postCount: +1,
+    },
+  });
+
   return post;
 }
 
 async function deletePostServices({ user_id, post_id }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
   // formatnya array of { url, publicId }
-  console.log(user_id, post_id);
   const post = await Post.deleteOne({
     _id: post_id,
     author: user_id,
@@ -26,7 +32,7 @@ async function deletePostServices({ user_id, post_id }) {
   return post;
 }
 
-async function getPostServices({ page, limit, user_id }) {
+async function getPostServices({ page, limit, user_id, isMyPost, images }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
   // formatnya array of { url, publicId }
   // const posts = await Post.find().populate("author");
@@ -35,9 +41,20 @@ async function getPostServices({ page, limit, user_id }) {
   // const limit = Number(req.query.limit) || 10;
 
   const skip = (page - 1) * limit;
+  const filter = {};
+
+  if (isMyPost) {
+    filter.author = user_id;
+  }
+  if (images) {
+    filter.images = {
+      $exists: true,
+      $ne: "",
+    };
+  }
 
   const [posts, total] = await Promise.all([
-    Post.find()
+    Post.find(filter)
       .populate("author")
       .sort({ createdAt: -1 })
       .skip(skip)

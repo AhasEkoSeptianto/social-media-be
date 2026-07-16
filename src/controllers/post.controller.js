@@ -30,9 +30,17 @@ async function getPost(req, res, next) {
   try {
     const page = req.query.page || 1;
     const limit = req.query.limit || 10;
+    const isMyPost = req.query.myPost;
+    const images = req.query.images;
     const user_id = req.user.id;
 
-    const posts = await getPostServices({ page, limit, user_id });
+    const posts = await getPostServices({
+      page,
+      limit,
+      user_id,
+      isMyPost,
+      images,
+    });
 
     res.status(200).json({
       success: true,
