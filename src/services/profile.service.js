@@ -13,7 +13,7 @@ async function getProfileService(user_id) {
 async function updateProfileService(user_id, username, image_url, bio, tag) {
   const User = await userModel.findOneAndUpdate(
     { _id: user_id },
-    { username: username, avatarUrl: image_url, bio: bio, tag: tagParsing },
+    { username: username, avatarUrl: image_url, bio: bio, tag: tag },
     { new: true },
   );
 
