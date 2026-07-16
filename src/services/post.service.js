@@ -2,6 +2,7 @@ const Post = require("../models/post.model");
 const Like = require("../models/like.model");
 const commentModel = require("../models/comment.model");
 const userModel = require("../models/user.model");
+const { notifyService } = require("./notification.service");
 
 async function createPostServices({ user_id, content, image_url }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
@@ -112,11 +113,18 @@ async function likePostService(userId, postId) {
       post: postId,
     });
 
-    await Post.findByIdAndUpdate(postId, {
+    const post = await Post.findByIdAndUpdate(postId, {
       $inc: {
         likesCount: 1,
       },
     });
+
+    console.log(post);
+
+    // set activity
+    if (userId !== post._id) {
+      await notifyService(userId, post.author, "like", post.id);
+    }
   }
 }
 
@@ -128,11 +136,19 @@ async function createCommentServices(user_id, post_id, content) {
     content: content,
   });
 
-  await Post.findByIdAndUpdate(post_id, {
+  const post = await Post.findByIdAndUpdate(post_id, {
     $inc: {
       commentsCount: 1,
     },
   });
+
+  await notifyService(
+    user_id,
+    post.author._id,
+    "comment",
+    post._id,
+    commentPost._id,
+  );
   return commentPost;
 }
 

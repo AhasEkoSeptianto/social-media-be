@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const followModel = require("../models/follow.model");
 const UserModel = require("../models/user.model");
+const { notifyService } = require("./notification.service");
 
 async function followUserService(user_id, following_id) {
   const session = await mongoose.startSession();
@@ -32,6 +33,9 @@ async function followUserService(user_id, following_id) {
         ],
         { session },
       );
+
+      // notify
+      await notifyService(user_id, following_id, "follow");
     }
 
     await UserModel.findByIdAndUpdate(
