@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
+const followModel = require("../models/follow.model");
 
-async function getUsersList(keyword) {
+async function getUsersList(keyword, user_id) {
   const users = await User.find({
     $or: [
       {
@@ -21,7 +22,21 @@ async function getUsersList(keyword) {
     .limit(20)
     .lean();
 
-  return users;
+  const following = await followModel.find({
+    follower: user_id,
+    following: {
+      $in: users.map((user) => user._id),
+    },
+  });
+  const followUserIds = new Set(
+    following.map((follow) => follow.following.toString()),
+  );
+  const result = users.map((user) => ({
+    ...user,
+    isFollow: followUserIds.has(user?._id.toString()),
+  }));
+
+  return result;
 }
 
 module.exports = { getUsersList };
