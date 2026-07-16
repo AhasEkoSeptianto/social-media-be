@@ -24,9 +24,20 @@ const userSchema = new mongoose.Schema(
     },
     username: {
       type: String,
+      default: function () {
+        return this.name;
+      },
     },
     avatarUrl: {
       type: String,
+    },
+    bio: {
+      type: String,
+      default: "",
+    },
+    tag: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true },
