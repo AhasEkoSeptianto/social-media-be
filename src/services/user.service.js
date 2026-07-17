@@ -39,4 +39,10 @@ async function getUsersList(keyword, user_id) {
   return result;
 }
 
-module.exports = { getUsersList };
+async function getUserByIdService(id) {
+  const user = await User.findOne({ _id: id });
+
+  return user;
+}
+
+module.exports = { getUsersList, getUserByIdService };
