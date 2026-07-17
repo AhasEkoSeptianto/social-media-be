@@ -28,6 +28,6 @@ module.exports = {
   cookieName: process.env.COOKIE_NAME || "session_token",
 
   cloudinary_name: required("CLOUDINARY_NAME"),
-  cloudinary_key: required("CLOUDINARY_KEY"),
+  cloudinary_api_key: required("CLOUDINARY_API_KEY"),
   cloudinary_secret: required("CLOUDINARY_SECRET"),
 };

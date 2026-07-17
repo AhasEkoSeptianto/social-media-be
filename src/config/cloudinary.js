@@ -1,9 +1,13 @@
 const cloudinary = require("cloudinary");
-const { cloudinary_name, cloudinary_key, cloudinary_secret } = require("./env");
+const {
+  cloudinary_name,
+  cloudinary_api_key,
+  cloudinary_secret,
+} = require("./env");
 
 cloudinary.config({
   cloud_name: cloudinary_name,
-  api_key: cloudinary_key,
+  api_key: cloudinary_api_key,
   api_secret: cloudinary_secret,
 });
 
