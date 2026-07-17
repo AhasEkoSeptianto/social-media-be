@@ -29,5 +29,5 @@ module.exports = {
 
   cloudinary_name: required("CLOUDINARY_NAME"),
   cloudinary_api_key: required("CLOUDINARY_API_KEY"),
-  cloudinary_secret: required("CLOUDINARY_SECRET"),
+  cloudinary_secret_key: required("CLOUDINARY_SECRET_KEY"),
 };
