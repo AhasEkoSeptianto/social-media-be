@@ -6,6 +6,7 @@ const userRoute = require("./users.route");
 const followRoute = require("./follow.route");
 const notificationRoute = require("./notification.route");
 const chatRoute = require("./chat.route");
+const conversationRoute = require("./conversation.route");
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use("/users", userRoute);
 router.use("/follow", followRoute);
 router.use("/notification", notificationRoute);
 router.use("/chat", chatRoute);
+router.use("/chat", conversationRoute);
 
 module.exports = router;
