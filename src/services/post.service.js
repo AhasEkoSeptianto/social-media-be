@@ -3,14 +3,18 @@ const Like = require("../models/like.model");
 const commentModel = require("../models/comment.model");
 const userModel = require("../models/user.model");
 const { notifyService } = require("./notification.service");
+const { UploadImage } = require("./cloudinary.service");
 
-async function createPostServices({ user_id, content, image_url }) {
+async function createPostServices({ user_id, content, temp_img_path }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
   // formatnya array of { url, publicId }
+
+  let saveImg = await UploadImage(temp_img_path);
+
   const post = await Post.create({
     author: user_id,
     postContext: content,
-    images: image_url,
+    images: saveImg?.url,
   });
 
   await userModel.findByIdAndUpdate(user_id, {

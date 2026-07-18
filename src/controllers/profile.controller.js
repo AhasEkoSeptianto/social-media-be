@@ -21,11 +21,15 @@ async function getProfile(req, res, next) {
 async function updateProfile(req, res, next) {
   try {
     const user_id = req.user.id;
-    const { username, image_url, bio, tag } = req.body;
+    const { username, bio, tag } = req.body;
+
+    const fileImage = req.files?.image;
+    const temp_img_path = fileImage?.tempFilePath || "";
+
     const profile = await updateProfileService(
       user_id,
       username,
-      image_url,
+      temp_img_path,
       bio,
       tag,
     );

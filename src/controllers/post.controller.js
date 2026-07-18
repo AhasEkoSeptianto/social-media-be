@@ -9,7 +9,10 @@ const {
 
 async function createPost(req, res, next) {
   try {
-    const { content, image_url } = req.body;
+    const { content } = req.body;
+
+    const fileImage = req.files.image;
+    const temp_img_path = fileImage.tempFilePath;
     const user_id = req.user.id;
     if (!content) {
       return res.status(400).json({
@@ -17,7 +20,7 @@ async function createPost(req, res, next) {
         message: "content wajib diisi",
       });
     }
-    const post = await createPostServices({ user_id, content, image_url });
+    const post = await createPostServices({ user_id, content, temp_img_path });
     res.status(200).json({
       success: true,
     });

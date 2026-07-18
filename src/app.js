@@ -11,6 +11,7 @@ const {
   errorHandler,
   notFoundHandler,
 } = require("./middleware/error.middleware");
+const fileUpload = require("express-fileupload");
 
 const app = express();
 
@@ -19,6 +20,12 @@ app.use(helmet());
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp",
+  }),
+);
 
 if (env !== "test") {
   app.use(morgan(env === "production" ? "combined" : "dev"));
