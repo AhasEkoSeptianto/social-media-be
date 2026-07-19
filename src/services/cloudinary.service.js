@@ -4,11 +4,26 @@ async function UploadImage(temp_img_path) {
   const result = await cloudinary.uploader.upload(temp_img_path, {
     folder: "posts",
   });
+  console.log(result);
+
+  return {
+    public_id: result?.public_id,
+    url: result?.url,
+  };
+}
+
+async function DeleteImage(
+  public_id,
+  resourse_type = "image" | "raw" | "video",
+) {
+  const result = await cloudinary.uploader.destroy(public_id, {
+    resourse_type: resourse_type,
+  });
 
   return result;
 }
 
-module.exports = { UploadImage };
+module.exports = { UploadImage, DeleteImage };
 
 // exanoke response
 // {

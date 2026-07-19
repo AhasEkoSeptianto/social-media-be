@@ -2,20 +2,26 @@ const Post = require("../models/post.model");
 const Like = require("../models/like.model");
 const commentModel = require("../models/comment.model");
 const userModel = require("../models/user.model");
-const { notifyService } = require("./notification.service");
+const {
+  notifyService,
+  deleteNotificationByPostIds,
+} = require("./notification.service");
 const { UploadImage } = require("./cloudinary.service");
+const { default: mongoose } = require("mongoose");
 
 async function createPostServices({ user_id, content, temp_img_path }) {
   // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
   // formatnya array of { url, publicId }
-
-  let saveImg = await UploadImage(temp_img_path);
-
-  const post = await Post.create({
+  let options = {
     author: user_id,
     postContext: content,
-    images: saveImg?.url,
-  });
+  };
+  if (temp_img_path) {
+    let saveImg = await UploadImage(temp_img_path);
+    options.images = saveImg;
+  }
+
+  const post = await Post.create(options);
 
   await userModel.findByIdAndUpdate(user_id, {
     $inc: {
@@ -27,24 +33,37 @@ async function createPostServices({ user_id, content, temp_img_path }) {
 }
 
 async function deletePostServices({ user_id, post_id }) {
-  // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
-  // formatnya array of { url, publicId }
-  const post = await Post.deleteOne({
-    _id: post_id,
-    author: user_id,
-  });
+  const session = await mongoose.startSession();
+  let post = {};
+  try {
+    session.startTransaction();
+
+    // delete comment
+    await commentModel.deleteMany({ post: post_id });
+
+    // delete like
+    await Like.deleteMany({ post: post_id });
+
+    // delete notification
+    await deleteNotificationByPostIds({ post_id: post_id });
+
+    // delete post
+    post = await Post.deleteOne({
+      _id: post_id,
+      author: user_id,
+    });
+
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+  } finally {
+    await session.endSession();
+  }
 
   return post;
 }
 
 async function getPostServices({ page, limit, user_id, isMyPost, images }) {
-  // uploadedImages = hasil dari proses upload ke Cloudinary/S3,
-  // formatnya array of { url, publicId }
-  // const posts = await Post.find().populate("author");
-
-  // const page = Number(req.query.page) || 1;
-  // const limit = Number(req.query.limit) || 10;
-
   const skip = (page - 1) * limit;
   const filter = {};
 

@@ -11,8 +11,8 @@ async function createPost(req, res, next) {
   try {
     const { content } = req.body;
 
-    const fileImage = req.files.image;
-    const temp_img_path = fileImage.tempFilePath;
+    const fileImage = req.files?.image;
+    const temp_img_path = fileImage?.tempFilePath;
     const user_id = req.user.id;
     if (!content) {
       return res.status(400).json({

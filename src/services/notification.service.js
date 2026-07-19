@@ -43,4 +43,13 @@ async function getUserNotifyService(user_id) {
   return result;
 }
 
-module.exports = { notifyService, getUserNotifyService };
+async function deleteNotificationByPostIds({ post_id }) {
+  let res = await notificationModel.deleteMany({ post: post_id });
+  return res;
+}
+
+module.exports = {
+  notifyService,
+  deleteNotificationByPostIds,
+  getUserNotifyService,
+};
